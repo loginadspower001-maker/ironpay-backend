@@ -8,6 +8,14 @@ app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3000;
 
+// 🔑 Debug das variáveis de ambiente
+console.log("=====================================");
+console.log("🔑 API_TOKEN:", process.env.API_TOKEN ? "OK ✅" : "NÃO ENCONTRADO ❌");
+console.log("📦 OFFER_HASH:", process.env.OFFER_HASH || "NÃO ENCONTRADO ❌");
+console.log("🛒 PRODUCT_HASH:", process.env.PRODUCT_HASH || "NÃO ENCONTRADO ❌");
+console.log("🚪 PORT:", process.env.PORT);
+console.log("=====================================");
+
 // Rota para criar uma transação PIX
 app.post("/checkout", async (req, res) => {
   try {
