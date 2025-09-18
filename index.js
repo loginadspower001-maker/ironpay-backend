@@ -14,9 +14,10 @@ app.post("/checkout", async (req, res) => {
     const response = await axios.post(
       "https://api.ironpayapp.com.br/api/public/v1/transactions",
       {
-        amount: req.body.amount, // vem do Postman
+        amount: req.body.amount,
         offer_hash: process.env.OFFER_HASH,
         payment_method: "pix",
+        installments: req.body.installments || 1,
         customer: {
           name: req.body.name,
           email: req.body.email,
@@ -33,12 +34,11 @@ app.post("/checkout", async (req, res) => {
             tangible: false,
           },
         ],
-        installments: req.body.installments || 1, // agora manda parcelas
       },
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.API_TOKEN}`, // Token agora no header
+          Authorization: `Bearer ${process.env.API_TOKEN}`,
         },
       }
     );
@@ -46,10 +46,9 @@ app.post("/checkout", async (req, res) => {
     res.json(response.data);
   } catch (error) {
     console.error(error.response?.data || error.message);
-    res.status(500).json({
-      error: "Erro ao criar transação",
-      details: error.response?.data || error.message,
-    });
+    res
+      .status(500)
+      .json({ error: "Erro ao criar transação", details: error.response?.data });
   }
 });
 
