@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 const app = express();
 app.use(bodyParser.json());
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Rota para criar uma transação PIX
 app.post("/checkout", async (req, res) => {
@@ -14,26 +14,26 @@ app.post("/checkout", async (req, res) => {
     const response = await axios.post(
       `https://api.ironpayapp.com.br/api/public/v1/transactions?api_token=${process.env.API_TOKEN}`,
       {
-amount: req.body.amount, // agora vem do Postman
-offer_hash: process.env.OFFER_HASH,
-payment_method: "pix",
-customer: {
-  name: req.body.name,
-  email: req.body.email,
-  phone_number: req.body.phone_number,
-  document: req.body.document,
-},
-cart: [
-  {
-    product_hash: process.env.PRODUCT_HASH,
-    title: "Taxa",
-    price: req.body.amount, // mesmo valor do amount
-    quantity: 1,
-    operation_type: 1,
-    tangible: false,
-  },
-],
-
+        amount: req.body.amount, // valor enviado pelo Postman
+        offer_hash: process.env.OFFER_HASH,
+        payment_method: "pix",
+        installments: req.body.installments || 1, // 👈 campo obrigatório (mínimo 1 parcela)
+        customer: {
+          name: req.body.name,
+          email: req.body.email,
+          phone_number: req.body.phone_number,
+          document: req.body.document,
+        },
+        cart: [
+          {
+            product_hash: process.env.PRODUCT_HASH,
+            title: "Taxa",
+            price: req.body.amount, // mesmo valor do amount
+            quantity: 1,
+            operation_type: 1,
+            tangible: false,
+          },
+        ],
       },
       {
         headers: {
@@ -45,7 +45,7 @@ cart: [
     res.json(response.data);
   } catch (error) {
     console.error(error.response?.data || error.message);
-    res.status(500).json({ error: "Erro ao criar transação" });
+    res.status(500).json({ error: error.response?.data || "Erro ao criar transação" });
   }
 });
 
